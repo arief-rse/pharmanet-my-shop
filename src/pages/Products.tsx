@@ -251,15 +251,22 @@ const Products = () => {
                         >
                           <img
                             src={
-                              product.images && product.images.length > 0 
-                                ? product.images[0] 
-                                : product.image_url || '/placeholder.svg'
+                              (product.images && product.images.length > 0 && product.images[0] && product.images[0] !== '/placeholder.svg')
+                                ? product.images[0]
+                                : (product.image_url && product.image_url !== '/placeholder.svg')
+                                  ? product.image_url
+                                  : '/placeholder.svg'
                             }
                             alt={product.name}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              target.src = '/placeholder.svg';
+                              // First try to fallback to image_url if images array failed
+                              if (product.image_url && product.image_url !== '/placeholder.svg' && target.src !== product.image_url) {
+                                target.src = product.image_url;
+                              } else {
+                                target.src = '/placeholder.svg';
+                              }
                             }}
                           />
                           {discount > 0 && (

@@ -44,15 +44,55 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchUserProfile = async (userId: string, userMetadata?: any) => {
     try {
       console.log('🔐 Fetching profile for user:', userId);
+
+      // First try to get the profile
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('id, full_name, role, business_name, business_license, contact_person, phone, is_approved')
         .eq('id', userId)
         .single();
-      
+
       if (error) {
-        console.log('🔐 Profile fetch error:', error);
-        // Return fallback profile
+        console.warn('⚠️ Profile fetch error, attempting to create profile:', error.message);
+
+        // Try to create profile if it doesn't exist
+        try {
+          const { error: createError } = await supabase
+            .from('profiles')
+            .upsert({
+              id: userId,
+              full_name: userMetadata?.full_name || null,
+              email: userMetadata?.email || null,
+              role: (userMetadata?.role as UserRole) || 'consumer',
+              is_approved: true,
+              updated_at: new Date().toISOString()
+            }, {
+              onConflict: 'id'
+            });
+
+          if (createError) {
+            console.error('❌ Failed to create profile:', createError);
+          } else {
+            console.log('✅ Profile created successfully');
+
+            // Try to fetch again
+            const { data: newProfile, error: fetchError } = await supabase
+              .from('profiles')
+              .select('id, full_name, role, business_name, business_license, contact_person, phone, is_approved')
+              .eq('id', userId)
+              .single();
+
+            if (!fetchError && newProfile) {
+              console.log('✅ Successfully fetched newly created profile:', newProfile);
+              return newProfile;
+            }
+          }
+        } catch (createException) {
+          console.error('❌ Profile creation exception:', createException);
+        }
+
+        // Return fallback profile if everything failed
+        console.log('🔄 Returning fallback profile');
         return {
           id: userId,
           full_name: userMetadata?.full_name || null,
@@ -61,14 +101,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           business_license: null,
           contact_person: null,
           phone: null,
-          is_approved: false,
+          is_approved: true, // Default to approved for consumers
         };
       }
-      
-      console.log('🔐 Successfully fetched profile:', profile);
+
+      console.log('✅ Successfully fetched profile:', profile);
       return profile;
     } catch (error) {
-      console.error('🔐 Profile fetch exception:', error);
+      console.error('❌ Profile fetch exception:', error);
+
+      // Return fallback profile
       return {
         id: userId,
         full_name: userMetadata?.full_name || null,
@@ -77,7 +119,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         business_license: null,
         contact_person: null,
         phone: null,
-        is_approved: false,
+        is_approved: true,
       };
     }
   };
@@ -179,46 +221,116 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     businessDescription?: string;
     contactPerson: string;
   }) => {
-    const { data: authData, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`,
-        data: {
-          full_name: fullName,
-          role: role,
+    console.log('🔐 Starting signup for:', { email, fullName, role });
+
+    try {
+      // Step 1: Create auth user
+      const { data: authData, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            full_name: fullName,
+            role: role,
+          }
+        }
+      });
+
+      console.log('🔐 Auth signup result:', {
+        success: !error,
+        userId: authData?.user?.id,
+        error: error?.message
+      });
+
+      if (error) {
+        return { error, data: authData };
+      }
+
+      // Step 2: If signup successful, ensure profile exists (wait a bit for trigger)
+      if (authData?.user) {
+        // Give the trigger a moment to create the profile
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        try {
+          // Try to verify profile was created
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('id, role, full_name')
+            .eq('id', authData.user.id)
+            .single();
+
+          if (profileError) {
+            console.warn('⚠️ Profile fetch warning:', profileError.message);
+
+            // Try to manually create profile if trigger failed
+            const { error: manualCreateError } = await supabase
+              .from('profiles')
+              .upsert({
+                id: authData.user.id,
+                full_name: fullName,
+                email: email,
+                role: role,
+                is_approved: role === 'consumer' // Auto-approve consumers
+              }, {
+                onConflict: 'id'
+              });
+
+            if (manualCreateError) {
+              console.error('❌ Manual profile creation failed:', manualCreateError);
+            } else {
+              console.log('✅ Profile created manually');
+            }
+          } else {
+            console.log('✅ Profile found:', profile);
+          }
+        } catch (profileException) {
+          console.error('❌ Profile verification exception:', profileException);
+        }
+
+        // Step 3: Handle vendor application if needed
+        if (role === 'vendor' && businessInfo) {
+          console.log('🔐 Creating vendor application...');
+
+          try {
+            const { error: appError } = await supabase
+              .from('vendor_applications')
+              .insert({
+                user_id: authData.user.id,
+                business_name: businessInfo.businessName,
+                business_license: businessInfo.businessLicense,
+                business_address: businessInfo.businessAddress,
+                business_description: businessInfo.businessDescription || null,
+                contact_person: businessInfo.contactPerson,
+                email: email,
+                status: 'pending'
+              });
+
+            if (appError) {
+              console.error('❌ Error creating vendor application:', appError);
+              // Don't fail the signup, just log the error
+              // But add it to the main error so user knows
+              error ? error.message += '. Vendor application failed: ' + appError.message : null;
+            } else {
+              console.log('✅ Vendor application created successfully');
+            }
+          } catch (appError) {
+            console.error('❌ Exception creating vendor application:', appError);
+          }
         }
       }
-    });
 
-    // If vendor role and signup successful, create vendor application
-    if (!error && role === 'vendor' && businessInfo && authData.user) {
-      try {
-        const { error: appError } = await supabase
-          .from('vendor_applications')
-          .insert({
-            user_id: authData.user.id,
-            business_name: businessInfo.businessName,
-            business_license: businessInfo.businessLicense,
-            business_address: businessInfo.businessAddress,
-            business_description: businessInfo.businessDescription || null,
-            contact_person: businessInfo.contactPerson,
-            email: email,
-            status: 'pending'
-          });
+      return { error, data: authData };
 
-        if (appError) {
-          console.error('Error creating vendor application:', appError);
-          // Don't fail the signup, just log the error
-        } else {
-          console.log('Vendor application created successfully');
-        }
-      } catch (appError) {
-        console.error('Exception creating vendor application:', appError);
-      }
+    } catch (exception) {
+      console.error('❌ Signup exception:', exception);
+      return {
+        error: {
+          message: 'An unexpected error occurred during signup. Please try again.'
+        },
+        data: null
+      };
     }
-
-    return { error, data: authData };
   };
 
   const signIn = async (email: string, password: string) => {

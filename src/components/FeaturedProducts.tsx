@@ -20,10 +20,12 @@ const FeaturedProducts = () => {
         .from('products')
         .select('*')
         .limit(4);
-      
+
       if (error) throw error;
       return data;
     },
+    staleTime: 0, // Always consider data stale
+    gcTime: 0, // Don't cache the data
   });
 
   const calculateDiscount = (price: number, originalPrice?: number) => {

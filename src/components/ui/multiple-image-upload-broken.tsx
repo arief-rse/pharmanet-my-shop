@@ -168,7 +168,7 @@ export const MultipleImageUpload: React.FC<MultipleImageUploadProps> = ({
 
   const handleDropForReorder = (e: React.DragEvent, dropIndex: number) => {
     e.preventDefault();
-
+    
     if (draggedIndex === null || draggedIndex === dropIndex) {
       setDraggedIndex(null);
       setDragOverIndex(null);
@@ -177,14 +177,14 @@ export const MultipleImageUpload: React.FC<MultipleImageUploadProps> = ({
 
     const newImages = [...images];
     const draggedImage = newImages[draggedIndex];
-
+    
     // Remove dragged item
     newImages.splice(draggedIndex, 1);
-
+    
     // Insert at new position
     const adjustedDropIndex = draggedIndex < dropIndex ? dropIndex - 1 : dropIndex;
     newImages.splice(adjustedDropIndex, 0, draggedImage);
-
+    
     onChange(newImages);
     setDraggedIndex(null);
     setDragOverIndex(null);
@@ -233,50 +233,67 @@ export const MultipleImageUpload: React.FC<MultipleImageUploadProps> = ({
               <div className="space-y-4">
                 <Upload className="h-8 w-8 mx-auto text-gray-400" />
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900">Drop images here</h3>
-                  <p className="text-xs text-gray-600">or click to browse</p>
+                  <h3 className="text-sm font-medium text-gray-900">
+                    Drop images here or click to upload
+                  </h3>
+                  <p className="text-xs text-gray-600">PNG, JPG, WebP up to 10MB each</p>
                 </div>
-                <p className="text-xs text-gray-500">
-                  PNG, JPG, GIF up to 10MB each. Max {maxImages} images.
-                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Choose Files
+                </Button>
               </div>
             )}
           </div>
-          <Input
+          <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/webp,image/gif"
             onChange={handleFileInputChange}
             className="hidden"
+            disabled={uploading || images.length >= maxImages}
+            multiple={false}
           />
         </div>
       )}
 
       {/* URL Input */}
-      {images.length < maxImages && (
-        <div className="space-y-2">
-          <Label>Or add image URL</Label>
-          <div className="flex gap-2">
-            <Input
-              type="url"
-              placeholder="https://example.com/image.jpg"
-              value={newImageUrl}
-              onChange={(e) => setNewImageUrl(e.target.value)}
-              onKeyPress={handleKeyPress}
-              disabled={uploading}
-            />
-            <Button
-              onClick={handleAddImage}
-              disabled={!newImageUrl.trim() || uploading}
-              size="sm"
-            >
-              Add URL
-            </Button>
-          </div>
+      <div className="space-y-2">
+        <Label htmlFor="image-url">Or Add Image URL</Label>
+        <div className="flex space-x-2">
+          <Input
+            id="image-url"
+            type="url"
+            placeholder="https://example.com/image.jpg"
+            value={newImageUrl}
+            onChange={(e) => setNewImageUrl(e.target.value)}
+            onKeyPress={handleKeyPress}
+            disabled={images.length >= maxImages}
+          />
+          <Button
+            type="button"
+            onClick={handleAddImage}
+            disabled={!newImageUrl.trim() || images.length >= maxImages}
+            size="sm"
+          >
+            <Upload className="h-4 w-4 mr-2" />
+            Add
+          </Button>
         </div>
-      )}
+        <p className="text-xs text-gray-500">
+          {images.length}/{maxImages} images • Drag to reorder • First image is primary
+        </p>
+      </div>
 
-      {/* Error Display */}
+      {/* Error Message */}
       {error && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
@@ -284,82 +301,96 @@ export const MultipleImageUpload: React.FC<MultipleImageUploadProps> = ({
         </Alert>
       )}
 
-      {/* Images Grid */}
+      {/* Image Grid */}
       {images.length > 0 && (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label>
-              Product Images ({images.length}/{maxImages})
-            </Label>
-            <p className="text-xs text-gray-500">
-              Drag to reorder
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {images.map((image, index) => (
-              <Card
-                key={index}
-                className={cn(
-                  "cursor-move transition-all duration-200",
-                  draggedIndex === index && "opacity-50",
-                  dragOverIndex === index && "ring-2 ring-blue-500 scale-105"
-                )}
-                draggable
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDragOver={(e) => handleDragOverForReorder(e, index)}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => handleDropForReorder(e, index)}
-                onDragEnd={handleDragEnd}
-              >
-                <CardContent className="p-2">
-                  <div className="aspect-square relative overflow-hidden rounded border bg-gray-50">
-                    <img
-                      src={image}
-                      alt={`Product image ${index + 1}`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/placeholder.svg';
-                      }}
-                    />
-
-                    {/* Remove Button */}
-                    <button
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {images.map((image, index) => (
+            <Card
+              key={index}
+              className={cn(
+                "relative group cursor-move transition-all duration-200",
+                draggedIndex === index && "opacity-50 scale-95",
+                dragOverIndex === index && "ring-2 ring-blue-500 scale-105"
+              )}
+              draggable
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragOver={(e) => handleDragOverForReorder(e, index)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDropForReorder(e, index)}
+              onDragEnd={handleDragEnd}
+            >
+              <CardContent className="p-2">
+                <div className="aspect-square relative overflow-hidden rounded border bg-gray-50">
+                  <img
+                    src={image}
+                    alt={`Product image ${index + 1}`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/placeholder.svg';
+                    }}
+                  />
+                  
+                  {/* Primary Badge */}
+                  {index === 0 && (
+                    <Badge className="absolute top-2 left-2 bg-yellow-500 text-white text-xs">
+                      <Star className="h-3 w-3 mr-1" />
+                      Primary
+                    </Badge>
+                  )}
+                  
+                  {/* Action Buttons */}
+                  <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-6 w-6 p-0 bg-white/90 hover:bg-white"
+                      onClick={() => window.open(image, '_blank')}
+                    >
+                      <Eye className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="h-6 w-6 p-0 bg-red-500/90 hover:bg-red-500"
                       onClick={() => handleRemoveImage(index)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 hover:opacity-100 transition-opacity"
-                      title="Remove image"
                     >
                       <X className="h-3 w-3" />
-                    </button>
-
-                    {/* Drag Indicator */}
-                    {index > 0 && (
-                      <div className="absolute top-1 left-1 bg-blue-500 text-white rounded-full p-1">
-                        <Move className="h-3 w-3" />
-                      </div>
-                    )}
-
-                    {/* Primary Badge */}
-                    {index === 0 && (
-                      <Badge className="absolute top-1 left-1 text-xs">
-                        Primary
-                      </Badge>
-                    )}
+                    </Button>
                   </div>
-
-                  {/* Image URL Display */}
-                  <div className="mt-2">
-                    <p className="text-xs text-gray-500 truncate" title={image}>
-                      {image}
-                    </p>
+                  
+                  {/* Drag Handle */}
+                  <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="bg-black/50 text-white p-1 rounded">
+                      <Move className="h-3 w-3" />
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                </div>
+                
+                {/* Image URL Preview */}
+                <p className="text-xs text-gray-500 mt-2 truncate" title={image}>
+                  {image}
+                </p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
+      )}
+
+      {/* Empty State */}
+      {images.length === 0 && (
+        <Card className="border-dashed border-2 border-gray-300">
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <ImageIcon className="h-12 w-12 text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No images added</h3>
+            <p className="text-sm text-gray-500 text-center">
+              Add image URLs to showcase your product from multiple angles
+            </p>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
-};
+}; 

@@ -57,6 +57,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ImageUpload } from '@/components/ui/image-upload';
+import { MultipleImageUpload } from '@/components/ui/multiple-image-upload';
 import {
   Package,
   TrendingUp,
@@ -1031,15 +1032,31 @@ const VendorDashboard = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>Product Image</Label>
-              <ImageUpload
-                value={formData.image_url}
-                onChange={(url) => handleInputChange('image_url', url || '')}
-                vendorId={user?.id || ''}
-                productId={editingProduct?.id}
-                placeholder="Upload product image"
-              />
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Primary Product Image</Label>
+                <ImageUpload
+                  value={formData.image_url}
+                  onChange={(url) => handleInputChange('image_url', url || '')}
+                  vendorId={user?.id || ''}
+                  productId={editingProduct?.id}
+                  placeholder="Upload primary product image"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Additional Product Images</Label>
+                <MultipleImageUpload
+                  images={formData.images}
+                  onChange={(images) => handleInputChange('images', images)}
+                  maxImages={4}
+                  vendorId={user?.id || ''}
+                  productId={editingProduct?.id}
+                />
+                <p className="text-sm text-gray-500">
+                  Upload up to 4 additional images. First image in the grid will be the primary display image.
+                </p>
+              </div>
             </div>
 
             <div className="flex justify-end space-x-2 pt-4">

@@ -31,7 +31,7 @@ const ProductFilters = ({ filters, onFiltersChange, isOpen = true, onToggle }: P
     queryKey: ['categories'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('product_categories')
+        .from('categories')
         .select('*')
         .order('name');
       if (error) throw error;

@@ -159,7 +159,7 @@ const DashboardTab = () => {
     queryKey: ['admin-categories-stats'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('product_categories')
+        .from('categories')
         .select('*');
       if (error) throw error;
       return data;

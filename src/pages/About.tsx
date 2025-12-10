@@ -83,7 +83,7 @@ const About = () => {
       image: '/placeholder.svg'
     },
     {
-      name: 'James Wilson',
+      name: 'Rajesh Kumar',
       role: 'Customer Care Director',
       qualification: 'MBA, Healthcare Management',
       experience: '8 years',
