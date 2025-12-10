@@ -1,15 +1,50 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "pharmanet-ecommerce",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "A modern e-commerce platform for pharmaceutical products in Malaysia",
+  "homepage": "https://github.com/yourusername/pharmanet-my-shop#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/pharmanet-my-shop.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/pharmanet-my-shop/issues"
+  },
+  "author": {
+    "name": "PharmaNet Team",
+    "email": "team@pharmanet.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "ecommerce",
+    "pharmacy",
+    "react",
+    "typescript",
+    "supabase",
+    "malaysia"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tsc && vite build",
     "build:dev": "vite build --mode development",
-    "lint": "eslint .",
+    "build:analyze": "vite build && npx vite-bundle-analyzer dist/stats.html",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
     "preview": "vite preview",
-    "create-admin": "node scripts/create-admin.js"
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:watch": "vitest --watch",
+    "create-admin": "node scripts/create-admin.js",
+    "db:migrate": "supabase db push",
+    "db:reset": "supabase db reset",
+    "db:seed": "node scripts/seed.js",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
