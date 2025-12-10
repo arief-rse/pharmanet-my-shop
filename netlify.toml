@@ -7,9 +7,31 @@
   NODE_VERSION = "18"
 
 [[redirects]]
+  # Handle all routes and redirect to index.html for client-side routing
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Specific redirects for assets should not be redirected
+[[redirects]]
+  from = "/assets/*"
+  to = "/assets/:splat"
+  status = 200
+
+# Ensure favicon works
+[[redirects]]
+  from = "/favicon.svg"
+  to = "/favicon.svg"
+  status = 200
+
+[[headers]]
+  # Set security headers
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
 
 [context.production]
   command = "npm run build"
