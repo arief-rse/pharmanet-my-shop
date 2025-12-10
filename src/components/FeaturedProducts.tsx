@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Star, ShoppingCart, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { TiltedCard, TiltedCardContent } from '@/components/ui/tilted-card';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/hooks/useCart';
 import { useNavigate } from 'react-router-dom';
@@ -19,10 +20,12 @@ const FeaturedProducts = () => {
         .from('products')
         .select('*')
         .limit(4);
-      
+
       if (error) throw error;
       return data;
     },
+    staleTime: 0, // Always consider data stale
+    gcTime: 0, // Don't cache the data
   });
 
   const calculateDiscount = (price: number, originalPrice?: number) => {
@@ -77,8 +80,14 @@ const FeaturedProducts = () => {
           {products?.map((product) => {
             const discount = calculateDiscount(product.price, product.original_price);
             return (
-              <Card key={product.id} className="group hover:shadow-lg transition-all duration-300 border-gray-100">
-                <CardContent className="p-0">
+              <TiltedCard 
+                key={product.id} 
+                className="group border-gray-100" 
+                tiltAmount={12}
+                glowEffect={true}
+                onClick={() => navigate(`/products/${product.id}`)}
+              >
+                <TiltedCardContent className="p-0">
                   {/* Product Image */}
                   <div className="relative aspect-square bg-gray-50 rounded-t-lg overflow-hidden">
                     <img
@@ -150,8 +159,8 @@ const FeaturedProducts = () => {
                       </Button>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </TiltedCardContent>
+              </TiltedCard>
             );
           })}
         </div>

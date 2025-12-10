@@ -63,7 +63,7 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// PharMa Online brand colors
+				        // PharmaEase brand colors
 				pharma: {
 					blue: '#1976D2',
 					green: '#43A047',

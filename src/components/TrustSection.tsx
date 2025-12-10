@@ -34,7 +34,7 @@ const TrustSection = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Why Trust PharMa Online?
+            Why Trust PharmaEase?
           </h2>
           <p className="text-lg text-pharma-gray max-w-3xl mx-auto">
             We prioritize your health and safety by connecting you only with verified, licensed pharmacies 

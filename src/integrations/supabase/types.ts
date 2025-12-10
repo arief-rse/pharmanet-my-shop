@@ -74,6 +74,36 @@ export type Database = {
         }
         Relationships: []
       }
+      product_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
@@ -125,6 +155,11 @@ export type Database = {
           total_amount: number
           updated_at: string
           user_id: string | null
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          tracking_number: string | null
+          estimated_delivery: string | null
+          notes: string | null
         }
         Insert: {
           created_at?: string
@@ -134,6 +169,11 @@ export type Database = {
           total_amount: number
           updated_at?: string
           user_id?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          tracking_number?: string | null
+          estimated_delivery?: string | null
+          notes?: string | null
         }
         Update: {
           created_at?: string
@@ -143,6 +183,11 @@ export type Database = {
           total_amount?: number
           updated_at?: string
           user_id?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          tracking_number?: string | null
+          estimated_delivery?: string | null
+          notes?: string | null
         }
         Relationships: []
       }
@@ -154,6 +199,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          images: string[] | null
           is_verified: boolean | null
           mal_number: string
           name: string
@@ -165,6 +211,8 @@ export type Database = {
           review_count: number | null
           stock_quantity: number | null
           updated_at: string
+          vendor_business_name: string | null
+          vendor_id: string | null
         }
         Insert: {
           brand: string
@@ -173,6 +221,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
           is_verified?: boolean | null
           mal_number: string
           name: string
@@ -184,6 +233,8 @@ export type Database = {
           review_count?: number | null
           stock_quantity?: number | null
           updated_at?: string
+          vendor_business_name?: string | null
+          vendor_id?: string | null
         }
         Update: {
           brand?: string
@@ -192,6 +243,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          images?: string[] | null
           is_verified?: boolean | null
           mal_number?: string
           name?: string
@@ -203,6 +255,8 @@ export type Database = {
           review_count?: number | null
           stock_quantity?: number | null
           updated_at?: string
+          vendor_business_name?: string | null
+          vendor_id?: string | null
         }
         Relationships: [
           {
@@ -217,39 +271,117 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          approval_status: string | null
+          approved_at: string | null
+          approved_by: string | null
+          business_address: string | null
+          business_description: string | null
+          business_license: string | null
+          business_name: string | null
           city: string | null
+          contact_person: string | null
           created_at: string
           email: string | null
           full_name: string | null
           id: string
+          is_approved: boolean | null
           phone: string | null
           postal_code: string | null
+          role: 'consumer' | 'vendor' | 'admin' | null
           state: string | null
           updated_at: string
         }
         Insert: {
           address?: string | null
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          business_address?: string | null
+          business_description?: string | null
+          business_license?: string | null
+          business_name?: string | null
           city?: string | null
+          contact_person?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id: string
+          is_approved?: boolean | null
           phone?: string | null
           postal_code?: string | null
+          role?: 'consumer' | 'vendor' | 'admin' | null
           state?: string | null
           updated_at?: string
         }
         Update: {
           address?: string | null
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          business_address?: string | null
+          business_description?: string | null
+          business_license?: string | null
+          business_name?: string | null
           city?: string | null
+          contact_person?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
+          is_approved?: boolean | null
           phone?: string | null
           postal_code?: string | null
+          role?: 'consumer' | 'vendor' | 'admin' | null
           state?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      vendor_applications: {
+        Row: {
+          admin_notes: string | null
+          business_address: string
+          business_description: string | null
+          business_license: string
+          business_name: string
+          contact_person: string
+          created_at: string
+          email: string | null
+          id: string
+          phone: string | null
+          status: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          business_address: string
+          business_description?: string | null
+          business_license: string
+          business_name: string
+          contact_person: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          phone?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          business_address?: string
+          business_description?: string | null
+          business_license?: string
+          business_name?: string
+          contact_person?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          phone?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -258,7 +390,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_current_user_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

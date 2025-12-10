@@ -14,7 +14,7 @@ const Footer = () => {
               <div className="w-8 h-8 bg-pharma-blue rounded-full flex items-center justify-center">
                 <span className="text-white font-bold text-sm">P</span>
               </div>
-              <h3 className="text-xl font-bold">PharMa Online</h3>
+              <h3 className="text-xl font-bold">PharmaEase</h3>
             </div>
             <p className="text-gray-300 leading-relaxed">
               Malaysia's trusted digital health platform connecting you with licensed local pharmacies 
@@ -63,7 +63,7 @@ const Footer = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="w-4 h-4 text-pharma-blue" />
-                <span className="text-gray-300 text-sm">support@pharmaonline.my</span>
+                <span className="text-gray-300 text-sm">support@pharmaease.my</span>
               </div>
               <div className="flex items-start space-x-2">
                 <MapPin className="w-4 h-4 text-pharma-blue mt-1" />
@@ -96,12 +96,11 @@ const Footer = () => {
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-400 text-sm">
-              © 2024 PharMa Online. All rights reserved. | Licensed by Ministry of Health Malaysia
+              © 2026 PharmaEase. All rights reserved. | Licensed by Ministry of Health Malaysia
             </p>
             <div className="flex items-center space-x-6 text-sm text-gray-400">
               <span>🇲🇾 Malaysia</span>
               <span>English</span>
-              <span>Bahasa Malaysia</span>
             </div>
           </div>
         </div>

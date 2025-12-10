@@ -1,8 +1,8 @@
-
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import FeaturedProducts from '@/components/FeaturedProducts';
 import TrustSection from '@/components/TrustSection';
+// import NationwideDeliveryCarousel from '@/components/NationwideDeliveryCarousel';
 import Footer from '@/components/Footer';
 
 const Index = () => {
@@ -12,6 +12,7 @@ const Index = () => {
       <Hero />
       <FeaturedProducts />
       <TrustSection />
+      {/* <NationwideDeliveryCarousel /> */}
       <Footer />
     </div>
   );

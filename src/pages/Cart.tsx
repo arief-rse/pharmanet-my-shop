@@ -1,21 +1,29 @@
-
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
+import { MalaysianCurrency, TotalPrice } from '@/components/ui/malaysian-currency';
+import { getDeliveryInfo } from '@/lib/malaysia-data';
+import { useLanguage } from '@/components/ui/language-toggle';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
+import { CartItemSkeleton } from '@/components/ui/skeleton';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { PaymentDialog } from '@/components/ui/payment-dialog';
 
 const Cart = () => {
   const { items, updateQuantity, removeFromCart, clearCart, totalPrice, loading } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [currentOrder, setCurrentOrder] = useState<any>(null);
+  const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleCheckout = async () => {
     if (!user) {
@@ -54,15 +62,28 @@ const Cart = () => {
 
       if (itemsError) throw itemsError;
 
-      // Clear cart
-      await clearCart();
+      // Prepare order data for payment dialog
+      const orderWithItems = {
+        ...order,
+        order_items: items.map(item => ({
+          id: `${order.id}-${item.product_id}`,
+          quantity: item.quantity,
+          price: item.product.price,
+          product: {
+            name: item.product.name,
+            brand: item.product.brand
+          }
+        }))
+      };
 
+      setCurrentOrder(orderWithItems);
+      setPaymentDialogOpen(true);
+      
       toast({
-        title: "Order placed successfully!",
-        description: `Your order #${order.id.slice(0, 8)} has been created.`,
+        title: "Order created successfully!",
+        description: `Order #${order.id.slice(0, 8)} is ready for payment.`,
       });
 
-      navigate('/');
     } catch (error) {
       console.error('Checkout error:', error);
       toast({
@@ -73,6 +94,21 @@ const Cart = () => {
     } finally {
       setCheckoutLoading(false);
     }
+  };
+
+  const handlePaymentClose = () => {
+    console.log('Payment dialog closed, clearing cart and navigating to orders...');
+    setPaymentDialogOpen(false);
+    setCurrentOrder(null);
+    
+    // Clear cart and navigate to orders page
+    clearCart();
+    
+    // Add a small delay before navigation to ensure all state updates are complete
+    setTimeout(() => {
+      console.log('Navigating to orders page...');
+    navigate('/orders');
+    }, 100);
   };
 
   if (!user) {
@@ -92,9 +128,31 @@ const Cart = () => {
     return (
       <div className="min-h-screen bg-white">
         <Header />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-pharma-blue mx-auto"></div>
-          <p className="mt-4">Loading cart...</p>
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-8">{t('cart.title')}</h1>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <CartItemSkeleton key={i} />
+              ))}
+            </div>
+            <div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Order Summary</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="animate-pulse space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                    <hr />
+                    <div className="h-6 bg-gray-200 rounded w-2/3"></div>
+                    <div className="h-10 bg-gray-200 rounded"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
         <Footer />
       </div>
@@ -107,8 +165,8 @@ const Cart = () => {
         <Header />
         <div className="container mx-auto px-4 py-16 text-center">
           <ShoppingBag className="h-24 w-24 text-gray-300 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold mb-4">Your cart is empty</h1>
-          <Button onClick={() => navigate('/products')}>Continue Shopping</Button>
+          <h1 className="text-2xl font-bold mb-4">{t('cart.empty')}</h1>
+          <Button onClick={() => navigate('/products')}>{t('cart.continue')}</Button>
         </div>
         <Footer />
       </div>
@@ -120,7 +178,7 @@ const Cart = () => {
       <Header />
       
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">{t('cart.title')}</h1>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
@@ -160,7 +218,10 @@ const Cart = () => {
                     </div>
                     
                     <div className="text-right">
-                      <p className="font-bold">RM {(item.product.price * item.quantity).toFixed(2)}</p>
+                      <MalaysianCurrency 
+                        amount={item.product.price * item.quantity}
+                        className="font-bold"
+                      />
                       <Button
                         size="sm"
                         variant="ghost"
@@ -182,19 +243,10 @@ const Cart = () => {
                 <CardTitle>Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span>RM {totalPrice.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Shipping</span>
-                  <span>FREE</span>
-                </div>
-                <hr />
-                <div className="flex justify-between font-bold text-lg">
-                  <span>Total</span>
-                  <span>RM {totalPrice.toFixed(2)}</span>
-                </div>
+                <TotalPrice 
+                  subtotal={totalPrice}
+                  shipping={0}
+                />
                 <Button 
                   className="w-full" 
                   onClick={handleCheckout}
@@ -209,6 +261,14 @@ const Cart = () => {
       </div>
       
       <Footer />
+
+      {paymentDialogOpen && currentOrder && (
+        <PaymentDialog
+          isOpen={paymentDialogOpen}
+          onClose={handlePaymentClose}
+          order={currentOrder}
+        />
+      )}
     </div>
   );
 };
