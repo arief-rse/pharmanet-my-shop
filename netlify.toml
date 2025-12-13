@@ -9,6 +9,8 @@
   NETLIFY_NEXT_PLUGIN_SKIP = "true"
   NPM_FLAGS = "--prefer-offline --no-audit"
 
+# No plugins section - remove all plugin configurations
+
 [[redirects]]
   # Handle all routes and redirect to index.html for client-side routing
   from = "/*"
