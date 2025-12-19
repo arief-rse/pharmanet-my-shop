@@ -151,32 +151,40 @@ const Products = () => {
     (priceStats && (filters.priceRange[0] > priceStats.min || filters.priceRange[1] < priceStats.max) ? 1 : 0);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Header />
-      
-      <div className="container mx-auto px-4 py-8">
+
+      <div className="container mx-auto px-4 py-12">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            {searchTerm ? `Search Results for "${searchTerm}"` : 'All Products'}
-          </h1>
-          
+        <div className="mb-10">
+          <div className="mb-6">
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-2">
+              {searchTerm ? `Search Results` : 'All Products'}
+            </h1>
+            {searchTerm && (
+              <p className="text-lg text-muted-foreground">
+                Searching for "<span className="text-primary font-medium">{searchTerm}</span>"
+              </p>
+            )}
+          </div>
+
           {/* Search and Controls */}
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-            <div className="relative max-w-md w-full">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <div className="relative max-w-lg w-full">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
-                placeholder="Search products..."
+                placeholder="Search medicines, supplements, vitamins..."
                 value={searchTerm}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-10"
+                className="pl-12 h-12 text-base border-2 focus:border-primary transition-smooth"
               />
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 w-full md:w-auto">
               {/* Sort */}
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="h-12 min-w-[180px] border-2 transition-smooth hover:border-primary">
+                  <SlidersHorizontal className="h-4 w-4 mr-2" />
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -191,11 +199,11 @@ const Products = () => {
               {/* Mobile Filter Button */}
               <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="outline" className="md:hidden relative">
-                    <SlidersHorizontal className="h-4 w-4 mr-2" />
+                  <Button variant="outline" className="md:hidden relative h-12 border-2 hover:border-primary transition-smooth">
+                    <Filter className="h-4 w-4 mr-2" />
                     Filters
                     {activeFiltersCount > 0 && (
-                      <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center">
+                      <Badge className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center bg-primary text-primary-foreground">
                         {activeFiltersCount}
                       </Badge>
                     )}
@@ -211,13 +219,24 @@ const Products = () => {
               </Sheet>
             </div>
           </div>
-          
-          {/* Results count */}
-          {searchTerm && (
-            <p className="text-sm text-gray-600 mt-2">
-              {products?.length ? `Found ${products.length} product(s)` : 'No products found'}
+
+          {/* Results count and active filters */}
+          <div className="flex items-center justify-between mt-6">
+            <p className="text-sm text-muted-foreground">
+              {products?.length ? (
+                <span className="font-medium text-foreground">
+                  {products.length} {products.length === 1 ? 'product' : 'products'} found
+                </span>
+              ) : (
+                'No products found'
+              )}
             </p>
-          )}
+            {activeFiltersCount > 0 && (
+              <Badge variant="secondary" className="font-medium">
+                {activeFiltersCount} {activeFiltersCount === 1 ? 'filter' : 'filters'} active
+              </Badge>
+            )}
+          </div>
         </div>
 
         <div className="flex gap-8">
@@ -239,13 +258,17 @@ const Products = () => {
               </div>
             ) : products?.length ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {products?.map((product) => {
+                {products?.map((product, index) => {
                   const discount = calculateDiscount(product.price, product.original_price);
                   return (
-                    <Card key={product.id} className="group hover:shadow-lg transition-all duration-300 border-gray-100">
+                    <Card
+                      key={product.id}
+                      className="card-elevated group border-border overflow-hidden"
+                      style={{ animationDelay: `${index * 0.05}s` }}
+                    >
                       <CardContent className="p-0">
-                        <div 
-                          className="relative aspect-square bg-gray-50 rounded-t-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                        <div
+                          className="relative aspect-square bg-muted rounded-t-lg overflow-hidden cursor-pointer spotlight"
                           onClick={() => handleProductClick(product.id)}
                           title="Click to view product details"
                         >
@@ -258,10 +281,9 @@ const Products = () => {
                                   : '/placeholder.svg'
                             }
                             alt={product.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              // First try to fallback to image_url if images array failed
                               if (product.image_url && product.image_url !== '/placeholder.svg' && target.src !== product.image_url) {
                                 target.src = product.image_url;
                               } else {
@@ -269,24 +291,29 @@ const Products = () => {
                               }
                             }}
                           />
+
+                          {/* Gradient overlay on hover */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                          {/* Badges */}
                           {discount > 0 && (
-                            <Badge className="absolute top-3 left-3 bg-pharma-red text-white">
-                              -{discount}%
+                            <Badge className="absolute top-3 left-3 bg-destructive text-destructive-foreground shadow-lg">
+                              -{discount}% OFF
                             </Badge>
                           )}
                           {product.is_verified && (
-                            <Badge className="absolute top-3 right-3 bg-pharma-green text-white">
+                            <Badge className="absolute top-3 right-3 bg-secondary text-secondary-foreground shadow-lg">
                               <Shield className="w-3 h-3 mr-1" />
                               Verified
                             </Badge>
                           )}
                         </div>
 
-                        <div className="p-4 space-y-3">
-                          <div>
-                            <p className="text-sm text-pharma-gray font-medium">{product.brand}</p>
-                            <h3 
-                              className="font-semibold text-gray-900 line-clamp-2 group-hover:text-pharma-blue transition-colors cursor-pointer hover:underline"
+                        <div className="p-5 space-y-3">
+                          <div className="space-y-1">
+                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{product.brand}</p>
+                            <h3
+                              className="font-semibold text-base text-foreground line-clamp-2 group-hover:text-primary transition-colors cursor-pointer"
                               onClick={() => handleProductClick(product.id)}
                               title="Click to view product details"
                             >
@@ -294,35 +321,37 @@ const Products = () => {
                             </h3>
                           </div>
 
-                          <div className="flex items-center space-x-1">
-                            <Shield className="w-4 h-4 text-pharma-green" />
-                            <span className="text-xs text-pharma-gray">{product.pharmacy_name}</span>
+                          <div className="flex items-center gap-2 text-xs">
+                            <div className="flex items-center gap-1 px-2 py-1 bg-secondary-light rounded-md">
+                              <Shield className="w-3 h-3 text-secondary" />
+                              <span className="text-secondary font-medium">{product.pharmacy_name}</span>
+                            </div>
                           </div>
 
-                          <p className="text-xs text-pharma-gray">MAL: {product.mal_number}</p>
+                          <p className="text-xs text-muted-foreground">MAL: <span className="font-medium">{product.mal_number}</span></p>
 
                           {product.rating && (
-                            <div className="flex items-center space-x-1">
-                              <div className="flex items-center">
-                                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                <span className="text-sm font-medium ml-1">{product.rating}</span>
+                            <div className="flex items-center gap-1">
+                              <div className="flex items-center gap-1 px-2 py-1 bg-warning-light rounded-md">
+                                <Star className="w-3 h-3 fill-warning text-warning" />
+                                <span className="text-sm font-semibold text-warning">{product.rating}</span>
                               </div>
-                              <span className="text-sm text-pharma-gray">({product.review_count || 0})</span>
+                              <span className="text-xs text-muted-foreground">({product.review_count || 0} reviews)</span>
                             </div>
                           )}
 
-                          <div className="space-y-2">
-                            <PriceDisplay 
+                          <div className="space-y-3 pt-2">
+                            <PriceDisplay
                               currentPrice={product.price}
                               originalPrice={product.original_price}
                               size="md"
                             />
 
-                            <Button 
-                              className="w-full bg-pharma-blue hover:bg-blue-700 text-white"
+                            <Button
+                              className="w-full bg-primary hover:bg-primary-hover text-primary-foreground shadow-glow btn-glow group/btn"
                               onClick={() => addToCart(product.id)}
                             >
-                              <ShoppingCart className="w-4 h-4 mr-2" />
+                              <ShoppingCart className="w-4 h-4 mr-2 group-hover/btn:scale-110 transition-transform" />
                               Add to Cart
                             </Button>
                           </div>
@@ -333,44 +362,52 @@ const Products = () => {
                 })}
               </div>
             ) : (
-              <div className="text-center py-16">
-                <div className="text-gray-400 mb-4">
-                  <Search className="h-16 w-16 mx-auto" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  {searchTerm ? 'No products found' : 'No products available'}
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  {searchTerm 
-                    ? `Try adjusting your search term or filters`
-                    : 'Products will appear here once they are added'
-                  }
-                </p>
-                {(searchTerm || activeFiltersCount > 0) && (
-                  <div className="flex gap-2 justify-center">
-                    {searchTerm && (
-                      <Button 
-                        variant="outline" 
-                        onClick={() => handleSearchChange('')}
-                      >
-                        Clear Search
-                      </Button>
-                    )}
-                    {activeFiltersCount > 0 && (
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setFilters({
-                          categories: [],
-                          priceRange: [priceStats?.min || 0, priceStats?.max || 1000],
-                          minRating: 0,
-                          verified: false,
-                        })}
-                      >
-                        Clear Filters
-                      </Button>
-                    )}
+              <div className="text-center py-24">
+                <div className="glass rounded-3xl p-16 max-w-2xl mx-auto">
+                  <div className="mb-6">
+                    <div className="inline-flex items-center justify-center w-24 h-24 bg-muted rounded-full mb-4">
+                      <Search className="h-12 w-12 text-muted-foreground" />
+                    </div>
                   </div>
-                )}
+                  <h3 className="text-2xl font-bold text-foreground mb-3">
+                    {searchTerm ? 'No products found' : 'No products available'}
+                  </h3>
+                  <p className="text-muted-foreground mb-8 text-lg">
+                    {searchTerm
+                      ? 'Try adjusting your search term or filters to find what you\'re looking for'
+                      : 'Products will appear here once they are added to the catalog'
+                    }
+                  </p>
+                  {(searchTerm || activeFiltersCount > 0) && (
+                    <div className="flex gap-3 justify-center">
+                      {searchTerm && (
+                        <Button
+                          variant="outline"
+                          size="lg"
+                          className="border-2 hover:border-primary transition-smooth"
+                          onClick={() => handleSearchChange('')}
+                        >
+                          Clear Search
+                        </Button>
+                      )}
+                      {activeFiltersCount > 0 && (
+                        <Button
+                          variant="outline"
+                          size="lg"
+                          className="border-2 hover:border-primary transition-smooth"
+                          onClick={() => setFilters({
+                            categories: [],
+                            priceRange: [priceStats?.min || 0, priceStats?.max || 1000],
+                            minRating: 0,
+                            verified: false,
+                          })}
+                        >
+                          Clear All Filters
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>

@@ -113,11 +113,19 @@ const Cart = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold mb-4">Please sign in to view your cart</h1>
-          <Button onClick={() => navigate('/auth')}>Sign In</Button>
+        <div className="container mx-auto px-4 py-24">
+          <div className="glass rounded-3xl p-16 max-w-2xl mx-auto text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-primary-light rounded-full mb-6">
+              <ShoppingBag className="h-10 w-10 text-primary" />
+            </div>
+            <h1 className="text-3xl font-bold text-foreground mb-4">Sign in to view your cart</h1>
+            <p className="text-muted-foreground mb-8">Please sign in to access your shopping cart and complete your purchase</p>
+            <Button size="lg" onClick={() => navigate('/auth')} className="bg-primary hover:bg-primary-hover text-primary-foreground px-8 shadow-glow btn-glow">
+              Sign In
+            </Button>
+          </div>
         </div>
         <Footer />
       </div>
@@ -126,10 +134,10 @@ const Cart = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">{t('cart.title')}</h1>
+        <div className="container mx-auto px-4 py-12">
+          <h1 className="text-4xl font-bold text-foreground mb-10">{t('cart.title')}</h1>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-4">
               {[...Array(3)].map((_, i) => (
@@ -137,17 +145,17 @@ const Cart = () => {
               ))}
             </div>
             <div>
-              <Card>
+              <Card className="card-elevated sticky top-8">
                 <CardHeader>
-                  <CardTitle>Order Summary</CardTitle>
+                  <CardTitle className="text-xl">Order Summary</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="animate-pulse space-y-3">
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                    <hr />
-                    <div className="h-6 bg-gray-200 rounded w-2/3"></div>
-                    <div className="h-10 bg-gray-200 rounded"></div>
+                  <div className="space-y-3">
+                    <div className="h-4 skeleton-shimmer rounded w-3/4"></div>
+                    <div className="h-4 skeleton-shimmer rounded w-1/2"></div>
+                    <hr className="border-border" />
+                    <div className="h-6 skeleton-shimmer rounded w-2/3"></div>
+                    <div className="h-12 skeleton-shimmer rounded"></div>
                   </div>
                 </CardContent>
               </Card>
@@ -161,12 +169,24 @@ const Cart = () => {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <ShoppingBag className="h-24 w-24 text-gray-300 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold mb-4">{t('cart.empty')}</h1>
-          <Button onClick={() => navigate('/products')}>{t('cart.continue')}</Button>
+        <div className="container mx-auto px-4 py-24">
+          <div className="glass rounded-3xl p-16 max-w-2xl mx-auto text-center">
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-muted rounded-full mb-6 float">
+              <ShoppingBag className="h-12 w-12 text-muted-foreground" />
+            </div>
+            <h1 className="text-3xl font-bold text-foreground mb-4">{t('cart.empty')}</h1>
+            <p className="text-muted-foreground text-lg mb-8">Your cart is waiting to be filled with amazing products</p>
+            <Button
+              size="lg"
+              onClick={() => navigate('/products')}
+              className="bg-primary hover:bg-primary-hover text-primary-foreground px-8 shadow-glow btn-glow group"
+            >
+              {t('cart.continue')}
+              <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+            </Button>
+          </div>
         </div>
         <Footer />
       </div>
@@ -174,59 +194,82 @@ const Cart = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Header />
-      
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">{t('cart.title')}</h1>
-        
+
+      <div className="container mx-auto px-4 py-12">
+        {/* Header */}
+        <div className="mb-10">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-2">{t('cart.title')}</h1>
+          <p className="text-muted-foreground">
+            {items.length} {items.length === 1 ? 'item' : 'items'} in your cart
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {items.map((item) => (
-              <Card key={item.id}>
+            {items.map((item, index) => (
+              <Card key={item.id} className="card-elevated overflow-hidden" style={{ animationDelay: `${index * 0.05}s` }}>
                 <CardContent className="p-6">
-                  <div className="flex items-center space-x-4">
-                    <img
-                      src={item.product.image_url || '/placeholder.svg'}
-                      alt={item.product.name}
-                      className="w-20 h-20 object-cover rounded"
-                    />
-                    
-                    <div className="flex-1">
-                      <h3 className="font-semibold">{item.product.name}</h3>
-                      <p className="text-sm text-gray-600">{item.product.brand}</p>
-                      <p className="text-sm text-gray-500">{item.product.pharmacy_name}</p>
-                      <p className="text-sm text-gray-500">MAL: {item.product.mal_number}</p>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    {/* Product Image */}
+                    <div className="relative w-24 h-24 flex-shrink-0">
+                      <img
+                        src={item.product.image_url || '/placeholder.svg'}
+                        alt={item.product.name}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
                     </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
-                      >
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                      <span className="w-8 text-center">{item.quantity}</span>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
+
+                    {/* Product Info */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-foreground text-lg mb-1 truncate">{item.product.name}</h3>
+                      <p className="text-sm text-muted-foreground mb-2">{item.product.brand}</p>
+                      <div className="flex flex-wrap gap-2">
+                        <div className="inline-flex items-center gap-1 px-2 py-1 bg-secondary-light rounded-md text-xs">
+                          <span className="text-secondary font-medium">{item.product.pharmacy_name}</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground px-2 py-1 bg-muted rounded-md">
+                          MAL: {item.product.mal_number}
+                        </span>
+                      </div>
                     </div>
-                    
-                    <div className="text-right">
-                      <MalaysianCurrency 
+
+                    {/* Quantity Controls */}
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
+                          className="h-8 w-8 p-0 hover:bg-background transition-smooth"
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="w-8 text-center font-semibold text-foreground">{item.quantity}</span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => updateQuantity(item.product_id, item.quantity + 1)}
+                          className="h-8 w-8 p-0 hover:bg-background transition-smooth"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Price and Remove */}
+                    <div className="flex sm:flex-col items-center sm:items-end gap-2 w-full sm:w-auto justify-between sm:justify-start">
+                      <MalaysianCurrency
                         amount={item.product.price * item.quantity}
-                        className="font-bold"
+                        className="font-bold text-lg text-primary"
                       />
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() => removeFromCart(item.product_id)}
-                        className="text-red-600 hover:text-red-700"
+                        className="text-destructive hover:text-destructive hover:bg-destructive-light transition-smooth"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -236,24 +279,58 @@ const Cart = () => {
               </Card>
             ))}
           </div>
-          
+
+          {/* Order Summary Sidebar */}
           <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
+            <Card className="card-elevated sticky top-8 border-2 border-border">
+              <CardHeader className="border-b border-border">
+                <CardTitle className="text-2xl">Order Summary</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <TotalPrice 
+              <CardContent className="space-y-6 pt-6">
+                <TotalPrice
                   subtotal={totalPrice}
                   shipping={0}
                 />
-                <Button 
-                  className="w-full" 
+
+                <Button
+                  className="w-full h-12 bg-primary hover:bg-primary-hover text-primary-foreground shadow-glow btn-glow group text-base font-semibold"
                   onClick={handleCheckout}
                   disabled={checkoutLoading}
                 >
-                  {checkoutLoading ? 'Processing...' : 'Proceed to Checkout'}
+                  {checkoutLoading ? (
+                    <>
+                      <span className="animate-spin mr-2">⏳</span>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      Proceed to Checkout
+                      <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+                    </>
+                  )}
                 </Button>
+
+                {/* Trust Indicators */}
+                <div className="pt-4 border-t border-border space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <svg className="w-4 h-4 text-secondary" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span>Secure Checkout</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <svg className="w-4 h-4 text-secondary" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span>Free Returns within 30 days</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <svg className="w-4 h-4 text-secondary" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span>Fast Delivery Available</span>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>

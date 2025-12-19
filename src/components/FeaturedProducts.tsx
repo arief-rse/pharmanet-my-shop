@@ -35,25 +35,28 @@ const FeaturedProducts = () => {
 
   if (isLoading) {
     return (
-      <section className="py-16 bg-white">
+      <section className="py-20 bg-background-subtle/50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-16 space-y-4">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-light border border-primary/20 rounded-full mb-4">
+              <span className="text-sm font-medium text-primary">Best Sellers</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
               Featured Products
             </h2>
-            <p className="text-lg text-pharma-gray max-w-2xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Discover our most popular medicines and health products from verified pharmacies
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[...Array(4)].map((_, i) => (
-              <Card key={i} className="animate-pulse">
+              <Card key={i} className="overflow-hidden border-border">
                 <CardContent className="p-0">
-                  <div className="aspect-square bg-gray-200 rounded-t-lg"></div>
+                  <div className="aspect-square skeleton-shimmer rounded-t-lg"></div>
                   <div className="p-4 space-y-3">
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    <div className="h-4 bg-gray-200 rounded w-full"></div>
-                    <div className="h-8 bg-gray-200 rounded"></div>
+                    <div className="h-4 skeleton-shimmer rounded w-3/4"></div>
+                    <div className="h-4 skeleton-shimmer rounded w-full"></div>
+                    <div className="h-8 skeleton-shimmer rounded"></div>
                   </div>
                 </CardContent>
               </Card>
@@ -65,13 +68,17 @@ const FeaturedProducts = () => {
   }
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-20 bg-background-subtle/50">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+        {/* Section Header */}
+        <div className="text-center mb-16 space-y-4">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary-light border border-primary/20 rounded-full mb-4">
+            <span className="text-sm font-medium text-primary">Best Sellers</span>
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Featured Products
           </h2>
-          <p className="text-lg text-pharma-gray max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Discover our most popular medicines and health products from verified pharmacies
           </p>
         </div>
@@ -165,14 +172,15 @@ const FeaturedProducts = () => {
           })}
         </div>
 
-        <div className="text-center mt-12">
-          <Button 
-            variant="outline" 
-            size="lg" 
-            className="border-pharma-blue text-pharma-blue hover:bg-pharma-blue hover:text-white"
+        <div className="text-center mt-16">
+          <Button
+            variant="outline"
+            size="lg"
+            className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 py-6 text-base transition-smooth group shadow-soft hover:shadow-glow"
             onClick={() => navigate('/products')}
           >
             View All Products
+            <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
           </Button>
         </div>
       </div>

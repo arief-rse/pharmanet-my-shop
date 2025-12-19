@@ -1,0 +1,35 @@
+name: Update Repository Topics
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/topics.txt'
+
+jobs:
+  update-topics:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Update repository topics
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Read topics from file
+            const fs = require('fs');
+            const topics = fs.readFileSync('.github/topics.txt', 'utf8')
+              .split('\n')
+              .map(topic => topic.trim())
+              .filter(topic => topic.length > 0);
+
+            // Update repository topics
+            await github.rest.repos.replaceAllTopics({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              names: topics
+            });
+
+            console.log('Updated topics:', topics);

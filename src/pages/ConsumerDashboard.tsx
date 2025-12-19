@@ -82,120 +82,164 @@ const ConsumerDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Header />
-      
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Dashboard</h1>
-          <p className="text-gray-600 mt-2">
-            Welcome back, {userProfile?.full_name || 'Valued Customer'}!
+
+      <div className="container mx-auto px-4 py-12">
+        {/* Header */}
+        <div className="mb-10">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-2">My Dashboard</h1>
+          <p className="text-lg text-muted-foreground">
+            Welcome back, <span className="text-primary font-semibold">{userProfile?.full_name || 'Valued Customer'}</span>!
           </p>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="orders">My Orders</TabsTrigger>
-            <TabsTrigger value="profile">Profile</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+          <TabsList className="grid w-full grid-cols-3 h-12 bg-muted p-1">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-background data-[state=active]:shadow-soft">
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="orders" className="data-[state=active]:bg-background data-[state=active]:shadow-soft">
+              My Orders
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="data-[state=active]:bg-background data-[state=active]:shadow-soft">
+              Profile
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6">
+          <TabsContent value="overview" className="space-y-8 animate-fade-in-up">
+            {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card>
+              <Card className="card-elevated overflow-hidden group">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-                  <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Total Orders</CardTitle>
+                  <div className="p-2 bg-primary-light rounded-lg group-hover:scale-110 transition-transform">
+                    <ShoppingBag className="h-5 w-5 text-primary" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">0</div>
-                  <p className="text-xs text-muted-foreground">0 delivered</p>
+                  <div className="text-3xl font-bold text-foreground">0</div>
+                  <p className="text-sm text-muted-foreground mt-1">0 delivered</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="card-elevated overflow-hidden group">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
-                  <Package className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Total Spent</CardTitle>
+                  <div className="p-2 bg-secondary-light rounded-lg group-hover:scale-110 transition-transform">
+                    <Package className="h-5 w-5 text-secondary" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">RM 0.00</div>
-                  <p className="text-xs text-muted-foreground">Since joining</p>
+                  <div className="text-3xl font-bold text-foreground">RM 0.00</div>
+                  <p className="text-sm text-muted-foreground mt-1">Since joining</p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="card-elevated overflow-hidden group">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Member Since</CardTitle>
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Member Since</CardTitle>
+                  <div className="p-2 bg-info-light rounded-lg group-hover:scale-110 transition-transform">
+                    <Calendar className="h-5 w-5 text-info" />
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">
-                    {userProfile?.created_at ? 
+                  <div className="text-3xl font-bold text-foreground">
+                    {userProfile?.created_at ?
                       new Date(userProfile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) :
                       'N/A'
                     }
                   </div>
-                  <p className="text-xs text-muted-foreground">Valued customer</p>
+                  <p className="text-sm text-muted-foreground mt-1">Valued customer</p>
                 </CardContent>
               </Card>
             </div>
 
-            <Card>
+            {/* Getting Started Card */}
+            <Card className="card-elevated border-2 border-primary/20 overflow-hidden">
               <CardHeader>
-                <CardTitle>Getting Started</CardTitle>
-                <CardDescription>Start exploring our products</CardDescription>
+                <CardTitle className="text-2xl">Getting Started</CardTitle>
+                <CardDescription className="text-base">Start exploring our products</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <ShoppingBag className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">Ready to start shopping?</p>
-                  <p className="text-sm text-gray-400 mb-4">Browse our catalog of verified pharmacy products</p>
-                  <Button onClick={() => navigate('/products')}>Browse Products</Button>
+                <div className="text-center py-12">
+                  <div className="inline-flex items-center justify-center w-20 h-20 bg-primary-light rounded-full mb-6 float">
+                    <ShoppingBag className="h-10 w-10 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2">Ready to start shopping?</h3>
+                  <p className="text-muted-foreground mb-6">Browse our catalog of verified pharmacy products</p>
+                  <Button
+                    size="lg"
+                    onClick={() => navigate('/products')}
+                    className="bg-primary hover:bg-primary-hover text-primary-foreground px-8 shadow-glow btn-glow group"
+                  >
+                    Browse Products
+                    <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="orders" className="space-y-6">
-            <Card>
+          <TabsContent value="orders" className="space-y-6 animate-fade-in-up">
+            <Card className="card-elevated">
               <CardHeader>
-                <CardTitle>Order History</CardTitle>
-                <CardDescription>Your past purchases will appear here</CardDescription>
+                <CardTitle className="text-2xl">Order History</CardTitle>
+                <CardDescription className="text-base">Your past purchases will appear here</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">No orders yet</p>
-                  <p className="text-sm text-gray-400 mb-4">Start shopping to see your orders here</p>
-                  <Button onClick={() => navigate('/products')}>Browse Products</Button>
+                <div className="text-center py-16">
+                  <div className="inline-flex items-center justify-center w-20 h-20 bg-muted rounded-full mb-6 float">
+                    <Package className="h-10 w-10 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2">No orders yet</h3>
+                  <p className="text-muted-foreground mb-6">Start shopping to see your orders here</p>
+                  <Button
+                    size="lg"
+                    onClick={() => navigate('/products')}
+                    className="bg-primary hover:bg-primary-hover text-primary-foreground px-8 shadow-glow btn-glow group"
+                  >
+                    Browse Products
+                    <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="profile" className="space-y-6">
-            <Card>
+          <TabsContent value="profile" className="space-y-6 animate-fade-in-up">
+            <Card className="card-elevated">
               <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-                <CardDescription>Your account details</CardDescription>
+                <CardTitle className="text-2xl">Profile Information</CardTitle>
+                <CardDescription className="text-base">Your account details</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-3">
-                        <User className="h-5 w-5 text-gray-400" />
+              <CardContent className="pt-6">
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Full Name */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+                        <div className="p-2 bg-primary-light rounded-lg">
+                          <User className="h-5 w-5 text-primary" />
+                        </div>
                         <div>
-                          <p className="text-sm text-gray-500">Full Name</p>
-                          <p className="font-medium">{userProfile?.full_name || 'Not provided'}</p>
+                          <p className="text-sm text-muted-foreground">Full Name</p>
+                          <p className="font-semibold text-foreground">{userProfile?.full_name || 'Not provided'}</p>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        <Package className="h-5 w-5 text-gray-400" />
+                    </div>
+
+                    {/* Account Type */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+                        <div className="p-2 bg-secondary-light rounded-lg">
+                          <Package className="h-5 w-5 text-secondary" />
+                        </div>
                         <div>
-                          <p className="text-sm text-gray-500">Account Type</p>
-                          <Badge variant="outline">{userProfile?.role || 'Consumer'}</Badge>
+                          <p className="text-sm text-muted-foreground">Account Type</p>
+                          <Badge className="bg-secondary text-secondary-foreground mt-1">
+                            {userProfile?.role || 'Consumer'}
+                          </Badge>
                         </div>
                       </div>
                     </div>
