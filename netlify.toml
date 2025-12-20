@@ -12,13 +12,10 @@
 
 # No plugins section - remove all plugin configurations
 
-[[redirects]]
-  # Handle all routes and redirect to index.html for client-side routing
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# IMPORTANT: Asset redirects must come BEFORE catch-all redirect
+# Netlify processes redirects top-to-bottom
 
-# Specific redirects for assets should not be redirected
+# Serve static assets directly
 [[redirects]]
   from = "/assets/*"
   to = "/assets/:splat"
@@ -28,6 +25,12 @@
 [[redirects]]
   from = "/favicon.svg"
   to = "/favicon.svg"
+  status = 200
+
+# Catch-all redirect for client-side routing (must be last)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
   status = 200
 
 [[headers]]
