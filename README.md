@@ -1,3 +1,5 @@
+Built with modern AI-assisted development practices. This project demonstrates how individual developers can create complex applications using AI tools for code generation, testing assistance, and documentation. While the core architecture and business logic are human-designed, AI significantly accelerated the development process
+
 # 🏥 PharmaNet MyShop
 
 ### Malaysia's Trusted Digital Health E-Commerce Platform
